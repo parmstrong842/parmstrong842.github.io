@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>Test Podcast</title>
+    <link>https://parmstrong842.github.io</link>
+    <description>RSS feed for testing</description>
+    <language>en-us</language>
+
+    <item>
+      <title>Episode 1</title>
+      <guid isPermaLink="false">ep-1-guid</guid>
+      <pubDate>Mon, 09 Dec 2024 10:00:00 GMT</pubDate>
+      <enclosure
+        url="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
+        length="123456"
+        type="audio/mpeg" />
+      <itunes:image href="https://parmstrong842.github.io/images/Untitled.jpeg"/>
+    </item>
+
+  </channel>
+</rss>
+
