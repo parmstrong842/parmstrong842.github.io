@@ -23,7 +23,7 @@ BASE_URL = f"https://archive.org/download/{ITEM_ID}/"
 # File containing metadata
 # ----------------------------
 XML_FILE = "toxictethers-cum-town-archive_files.xml"  # your XML metadata
-OUTPUT_FILE = "podcast.xml"
+OUTPUT_FILE = "podcast.rss"
 
 # ----------------------------
 # Helper to format timestamp to RFC 822
