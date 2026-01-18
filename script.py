@@ -1,31 +1,32 @@
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 from datetime import datetime
-from urllib.parse import quote  # <- this handles spaces and special characters
+from urllib.parse import quote
 
 # ----------------------------
 # Podcast metadata
 # ----------------------------
 PODCAST_TITLE = "Cum Town Archive"
-PODCAST_LINK = "https://example.com"           # your website or podcast page
+PODCAST_LINK = "https://archive.org/details/toxictethers-cum-town-archive"
 PODCAST_DESCRIPTION = "Archive of Cum Town podcast episodes."
 PODCAST_AUTHOR = "Cum Town"
-PODCAST_IMAGE = "https://example.com/artwork.jpg"
+PODCAST_IMAGE = "https://example.com/artwork.jpg"  # optional
 PODCAST_LANGUAGE = "en-us"
 
 # ----------------------------
-# Base URL for GitHub Pages
+# Internet Archive item ID
 # ----------------------------
-BASE_URL = "https://parmstrong842.github.io/"  # Update this to your GitHub Pages URL
+ITEM_ID = "toxictethers-cum-town-archive"
+BASE_URL = f"https://archive.org/download/{ITEM_ID}/"
 
 # ----------------------------
-# Files
+# File containing metadata
 # ----------------------------
-XML_FILE = "episodes_metadata.xml"  # Your metadata XML
+XML_FILE = "toxictethers-cum-town-archive_files.xml"  # your XML metadata
 OUTPUT_FILE = "podcast.xml"
 
 # ----------------------------
-# Helper to convert timestamp to RFC 822 format
+# Helper to format timestamp to RFC 822
 # ----------------------------
 def format_rfc822(timestamp):
     dt = datetime.utcfromtimestamp(int(timestamp))
@@ -36,20 +37,25 @@ def format_rfc822(timestamp):
 # ----------------------------
 tree = ET.parse(XML_FILE)
 root = tree.getroot()
+
 rss_items = []
 
 for file in root.findall('file'):
-    raw_filename = file.attrib['name'].split('/')[-1]  # e.g., "01 - Ep. 1 - The Original Cum Boys.mp3"
-    
-    # URL-encode filename for GitHub Pages
-    filename = quote(raw_filename)
-    
-    audio_url = f"{BASE_URL}{filename}"                        # full URL for enclosure
+    # Full path of the file on Internet Archive
+    raw_filename = file.attrib['name']  # e.g., "Cum Town Archive/1) Cum Town Archive/01 - Ep. 1 - The Original Cum Boys.mp3"
 
-    # Extract metadata from XML
+    if not raw_filename.lower().endswith(".mp3"):
+        continue
+    
+    # URL-encode full path
+    filename = quote(raw_filename)
+
+    audio_url = f"{BASE_URL}{filename}"
+
+    # Metadata
     title = escape(file.findtext('title', default='Untitled'))
     description = escape(file.findtext('comment', default=''))
-    pub_date = format_rfc822(file.findtext('mtime', default='0'))
+    pub_date = format_rfc822(file.attrib.get('mtime', '0'))
 
     # Build RSS item
     item = f"""
@@ -64,7 +70,7 @@ for file in root.findall('file'):
     rss_items.append(item.strip())
 
 # ----------------------------
-# Build the full RSS feed
+# Build full RSS feed
 # ----------------------------
 rss_feed = f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"
@@ -83,7 +89,7 @@ rss_feed = f"""<?xml version="1.0" encoding="UTF-8"?>
 """
 
 # ----------------------------
-# Write the RSS feed to a file
+# Write RSS feed to file
 # ----------------------------
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(rss_feed)
