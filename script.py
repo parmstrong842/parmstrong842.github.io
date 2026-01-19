@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import quote
+import re
 
 # ----------------------------
 # Podcast metadata
@@ -28,9 +29,13 @@ OUTPUT_FILE = "podcast.rss"
 # ----------------------------
 # Helper to format timestamp to RFC 822
 # ----------------------------
-def format_rfc822(timestamp):
-    dt = datetime.utcfromtimestamp(int(timestamp))
-    return dt.strftime("%a, %d %b %Y %H:%M:%S GMT")
+def format_pubdate(timestamp):
+  try:
+      ts = int(timestamp)
+      pub_date = datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
+  except (ValueError, TypeError):
+      pub_date = ""
+  return pub_date
 
 # ----------------------------
 # Parse XML metadata
@@ -52,10 +57,9 @@ for file in root.findall('file'):
 
     audio_url = f"{BASE_URL}{filename}"
 
-    # Metadata
     title = escape(file.findtext('title', default='Untitled'))
     description = escape(file.findtext('comment', default=''))
-    pub_date = format_rfc822(file.attrib.get('mtime', '0'))
+    pub_date = format_pubdate(file.findtext('mtime', default='0'))
 
     # Build RSS item
     item = f"""
